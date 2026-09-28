@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}REST API Documentation{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="fw-bold mb-1">REST API Reference</h2>
+    <p class="text-muted mb-0">Programmatic RESTful JSON endpoints for hospital management integration.</p>
+</div>
+
+<!-- API Overview Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h5 class="fw-bold text-primary mb-2"><i class="bi bi-shield-lock me-2"></i> Authentication & Formats</h5>
+        <p class="text-muted mb-2">
+            The API endpoints are session-authenticated (using standard browser session cookies) and exempt from CSRF token requirements.
+            Ensure you are logged in or provide valid session credentials when making calls.
+        </p>
+        <div class="row g-2 mt-2">
+            <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center small">
+                    <strong>Content-Type:</strong> <code>application/json</code>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center small">
+                    <strong>Base Prefix:</strong> <code>/api</code>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center small">
+                    <strong>Auth Method:</strong> Flask Session
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-2 border rounded bg-light text-center small">
+                    <strong>Health Endpoint:</strong> <code>GET /health</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Endpoints Table / Cards -->
+<div class="row g-4">
+    <!-- Patients Endpoints -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2 text-primary"></i> Patients Resource</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 120px;">Method</th>
+                                <th style="width: 260px;">Endpoint</th>
+                                <th>Allowed Roles</th>
+                                <th>Description & Status Codes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td><code>/api/patients</code></td>
+                                <td><span class="badge bg-secondary">All authenticated</span></td>
+                                <td>
+                                    Returns array of all patient records.
+                                    <div class="small text-muted mt-1">Status: <code>200 OK</code>, <code>401 Unauthorized</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-primary">POST</span></td>
+                                <td><code>/api/patients</code></td>
+                                <td><span class="badge bg-info text-dark">Admin, Receptionist</span></td>
+                                <td>
+                                    Creates a new patient from JSON payload.
+                                    <div class="small text-muted mt-1">Payload: <code>{"name": "...", "age": 30, "gender": "Male", "phone": "1234567890", "email": "...", "blood_group": "O+"}</code></div>
+                                    <div class="small text-muted">Status: <code>201 Created</code>, <code>400 Bad Request</code>, <code>403 Forbidden</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td><code>/api/patients/&lt;id&gt;</code></td>
+                                <td><span class="badge bg-secondary">All authenticated</span></td>
+                                <td>
+                                    Retrieves single patient details along with linked appointment history.
+                                    <div class="small text-muted mt-1">Status: <code>200 OK</code>, <code>404 Not Found</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark">PUT</span></td>
+                                <td><code>/api/patients/&lt;id&gt;</code></td>
+                                <td><span class="badge bg-info text-dark">Admin, Receptionist</span></td>
+                                <td>
+                                    Updates patient fields from JSON.
+                                    <div class="small text-muted mt-1">Status: <code>200 OK</code>, <code>400 Bad Request</code>, <code>404 Not Found</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger">DELETE</span></td>
+                                <td><code>/api/patients/&lt;id&gt;</code></td>
+                                <td><span class="badge bg-danger">Admin Only</span></td>
+                                <td>
+                                    Deletes patient. Blocked with 400 if patient has existing appointments.
+                                    <div class="small text-muted mt-1">Status: <code>200 OK</code>, <code>400 Conflict</code>, <code>403 Forbidden</code>, <code>404 Not Found</code></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctors & Appointments Endpoints -->
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-hospital me-2 text-success"></i> Doctors & Appointments Resources</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 120px;">Method</th>
+                                <th style="width: 260px;">Endpoint</th>
+                                <th>Allowed Roles</th>
+                                <th>Description & Status Codes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td><code>/api/doctors</code></td>
+                                <td><span class="badge bg-secondary">All authenticated</span></td>
+                                <td>
+                                    Returns JSON list of all registered doctors with specializations and consulting schedules.
+                                    <div class="small text-muted mt-1">Status: <code>200 OK</code>, <code>401 Unauthorized</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td><code>/api/appointments</code></td>
+                                <td><span class="badge bg-secondary">All authenticated</span></td>
+                                <td>
+                                    Returns JSON list of appointments ordered by date and time descending.
+                                    <div class="small text-muted mt-1">Status: <code>200 OK</code>, <code>401 Unauthorized</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success">GET</span></td>
+                                <td><code>/health</code></td>
+                                <td><span class="badge bg-light text-dark border">Public Probe</span></td>
+                                <td>
+                                    Container liveness and database connectivity health probe.
+                                    <div class="small text-muted mt-1">Status: <code>200 {"status": "healthy"}</code>, <code>503 {"status": "unhealthy"}</code></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
