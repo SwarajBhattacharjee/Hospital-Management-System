@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Hospital Overview</h2>
+        <p class="text-muted mb-0">Welcome to PulseCare HMS Operations Dashboard</p>
+    </div>
+    <div class="d-flex gap-2">
+        {% if current_user.role in ['admin', 'receptionist'] %}
+            <a href="{{ url_for('routes.new_patient') }}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-person-plus me-1"></i> Add Patient
+            </a>
+            <a href="{{ url_for('routes.new_appointment') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-calendar-plus me-1"></i> Book Appointment
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Patients</span>
+                    <h3 class="fw-bold my-1 text-primary">{{ patient_count }}</h3>
+                    <a href="{{ url_for('routes.patients') }}" class="small text-decoration-none">View directory &rarr;</a>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Doctors</span>
+                    <h3 class="fw-bold my-1 text-success">{{ doctor_count }}</h3>
+                    <a href="{{ url_for('routes.doctors') }}" class="small text-decoration-none">View doctors &rarr;</a>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Appointments</span>
+                    <h3 class="fw-bold my-1 text-info">{{ appointment_count }}</h3>
+                    <a href="{{ url_for('routes.appointments') }}" class="small text-decoration-none">View schedule &rarr;</a>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-calendar2-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-lg-3">
+        <div class="card stat-card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                <div>
+                    <span class="text-muted small text-uppercase fw-semibold">Staff Members</span>
+                    <h3 class="fw-bold my-1 text-warning">{{ staff_count }}</h3>
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('routes.staff') }}" class="small text-decoration-none">Manage staff &rarr;</a>
+                    {% else %}
+                        <span class="small text-muted">Admin restricted</span>
+                    {% endif %}
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-person-gear"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Appointments Table -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-bold"><i class="bi bi-clock-history me-1 text-primary"></i> Recent Appointments</span>
+        <a href="{{ url_for('routes.appointments') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">ID</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Date & Time</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th class="text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in recent_appointments %}
+                    <tr>
+                        <td class="ps-3 fw-semibold">#{{ apt.id }}</td>
+                        <td>
+                            <a href="{{ url_for('routes.patient_detail', id=apt.patient.id) }}" class="fw-semibold text-decoration-none">
+                                {{ apt.patient.name }}
+                            </a>
+                            <div class="text-muted small">Blood: {{ apt.patient.blood_group }}</div>
+                        </td>
+                        <td>
+                            <span class="fw-semibold">Dr. {{ apt.doctor.name }}</span>
+                            <div class="text-muted small">{{ apt.doctor.specialization }}</div>
+                        </td>
+                        <td>
+                            <div>{{ apt.date.strftime('%b %d, %Y') }}</div>
+                            <div class="text-muted small">{{ apt.time.strftime('%I:%M %p') }}</div>
+                        </td>
+                        <td><span class="text-truncate d-inline-block" style="max-width: 180px;">{{ apt.reason }}</span></td>
+                        <td>
+                            {% if apt.status == 'Scheduled' %}
+                                <span class="badge badge-scheduled px-2 py-1">Scheduled</span>
+                            {% elif apt.status == 'Completed' %}
+                                <span class="badge badge-completed px-2 py-1">Completed</span>
+                            {% else %}
+                                <span class="badge badge-cancelled px-2 py-1">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-3">
+                            <a href="{{ url_for('routes.appointments') }}" class="btn btn-sm btn-light">Details</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-calendar-x fs-3 d-block mb-1"></i>
+                            No appointments recorded yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

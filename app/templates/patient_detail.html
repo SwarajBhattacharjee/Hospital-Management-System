@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Patient: {{ patient.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('routes.patients') }}">Patients</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ patient.name }}</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold mb-0">{{ patient.name }} <span class="badge bg-secondary fs-6 align-middle">ID #{{ patient.id }}</span></h2>
+    </div>
+    <div class="d-flex gap-2">
+        {% if current_user.role in ['admin', 'receptionist'] %}
+            <a href="{{ url_for('routes.new_appointment', patient_id=patient.id) }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-calendar-plus me-1"></i> Book Appointment
+            </a>
+            <a href="{{ url_for('routes.edit_patient', id=patient.id) }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+        {% endif %}
+        {% if current_user.role == 'admin' %}
+            <form method="POST" action="{{ url_for('routes.delete_patient', id=patient.id) }}" class="d-inline confirm-action" data-confirm-message="Are you sure you want to delete patient '{{ patient.name }}'?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash me-1"></i> Delete
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Patient Profile Card -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+                <span class="fw-bold text-primary"><i class="bi bi-person-lines-fill me-1"></i> Patient Demographics</span>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                        <span class="text-muted">Age / Gender:</span>
+                        <span class="fw-semibold">{{ patient.age }} yrs &bull; {{ patient.gender }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                        <span class="text-muted">Blood Group:</span>
+                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1">
+                            {{ patient.blood_group }}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                        <span class="text-muted">Phone:</span>
+                        <span class="fw-semibold">{{ patient.phone }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                        <span class="text-muted">Email:</span>
+                        <span class="fw-semibold">{{ patient.email }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                        <span class="text-muted">Registered On:</span>
+                        <span class="text-muted">{{ patient.created_at.strftime('%b %d, %Y') if patient.created_at else 'N/A' }}</span>
+                    </li>
+                    <li class="list-group-item px-0 py-2">
+                        <span class="text-muted d-block mb-1">Residential Address:</span>
+                        <span class="text-secondary small">{{ patient.address or 'No address provided on file.' }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment History -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-primary"><i class="bi bi-calendar2-range me-1"></i> Appointment History ({{ appointments|length }})</span>
+                {% if current_user.role in ['admin', 'receptionist'] %}
+                    <a href="{{ url_for('routes.new_appointment', patient_id=patient.id) }}" class="btn btn-sm btn-outline-primary">
+                        + Schedule New
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">ID</th>
+                                <th>Doctor</th>
+                                <th>Date & Time</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for apt in appointments %}
+                            <tr>
+                                <td class="ps-3 fw-bold">#{{ apt.id }}</td>
+                                <td>
+                                    <div class="fw-semibold">Dr. {{ apt.doctor.name }}</div>
+                                    <div class="text-muted small">{{ apt.doctor.specialization }}</div>
+                                </td>
+                                <td>
+                                    <div>{{ apt.date.strftime('%b %d, %Y') }}</div>
+                                    <div class="text-muted small">{{ apt.time.strftime('%I:%M %p') }}</div>
+                                </td>
+                                <td><span class="small">{{ apt.reason }}</span></td>
+                                <td>
+                                    {% if apt.status == 'Scheduled' %}
+                                        <span class="badge badge-scheduled px-2 py-1">Scheduled</span>
+                                    {% elif apt.status == 'Completed' %}
+                                        <span class="badge badge-completed px-2 py-1">Completed</span>
+                                    {% else %}
+                                        <span class="badge badge-cancelled px-2 py-1">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="bi bi-calendar-x fs-3 d-block mb-1"></i>
+                                    No appointment records found for this patient.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
