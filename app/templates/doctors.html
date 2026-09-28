@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Medical Staff - Doctors{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Medical Staff &bull; Doctors</h2>
+        <p class="text-muted mb-0">Browse hospital physicians, clinical specializations, and working schedules.</p>
+    </div>
+    {% if current_user.role == 'admin' %}
+        <div>
+            <a href="{{ url_for('routes.new_doctor') }}" class="btn btn-success">
+                <i class="bi bi-person-plus-fill me-1"></i> Add Doctor
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Doctors Cards / Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">ID</th>
+                        <th>Physician Name</th>
+                        <th>Specialization</th>
+                        <th>Available Days</th>
+                        <th>Contact</th>
+                        <th>Total Appointments</th>
+                        {% if current_user.role == 'admin' %}
+                            <th class="text-end pe-3">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in doctors %}
+                    <tr>
+                        <td class="ps-3 fw-bold text-muted">#{{ doc.id }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">Dr. {{ doc.name }}</div>
+                            <span class="text-muted small">Registered: {{ doc.created_at.strftime('%Y-%m-%d') if doc.created_at else 'N/A' }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">
+                                {{ doc.specialization }}
+                            </span>
+                        </td>
+                        <td>
+                            <i class="bi bi-calendar-week text-muted me-1"></i>
+                            <span class="small">{{ doc.available_days }}</span>
+                        </td>
+                        <td>
+                            <div><i class="bi bi-telephone text-muted me-1"></i> {{ doc.phone }}</div>
+                            <div class="text-muted small"><i class="bi bi-envelope text-muted me-1"></i> {{ doc.email }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary rounded-pill px-2 py-1">
+                                {{ doc.appointments|length }} appointments
+                            </span>
+                        </td>
+                        {% if current_user.role == 'admin' %}
+                        <td class="text-end pe-3">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('routes.edit_doctor', id=doc.id) }}" class="btn btn-outline-primary" title="Edit Doctor">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('routes.delete_doctor', id=doc.id) }}" class="d-inline confirm-action" data-confirm-message="Are you sure you want to delete Dr. {{ doc.name }}?">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete Doctor">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                            No doctors registered in the system yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
