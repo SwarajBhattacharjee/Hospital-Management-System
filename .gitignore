@@ -21,3 +21,8 @@ instance/*.sqlite3
 # Operating System Files
 .DS_Store
 Thumbs.db
+
+# IaC and Configuration Management local demo deliverables
+terraform/
+ansible/
+reports/
