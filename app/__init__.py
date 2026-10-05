@@ -116,6 +116,12 @@ def create_app(test_config=None):
             return jsonify({'status': 'unhealthy', 'error': 'Database unreachable'}), 503
 
     # -------------------------------------------------------------
+    # PROMETHEUS METRICS INSTRUMENTATION
+    # -------------------------------------------------------------
+    from app.metrics import init_metrics
+    init_metrics(app)
+
+    # -------------------------------------------------------------
     # CUSTOM ERROR HANDLERS
     # -------------------------------------------------------------
     @app.errorhandler(403)
