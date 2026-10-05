@@ -26,3 +26,4 @@ Thumbs.db
 terraform/
 ansible/
 reports/
+monitoring/logs/
