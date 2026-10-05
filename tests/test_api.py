@@ -117,3 +117,31 @@ def test_api_doctors_and_appointments(client, auth):
     resp_apt = client.get('/api/appointments')
     assert resp_apt.status_code == 200
     assert resp_apt.get_json()['status'] == 'success'
+
+
+def test_metrics_endpoint_public_and_format(client):
+    """Test public Prometheus /metrics endpoint returns 200 and text format."""
+    response = client.get('/metrics')
+    assert response.status_code == 200
+    assert 'text/plain' in response.content_type
+    content = response.data.decode('utf-8')
+    assert 'http_requests_total' in content
+    assert 'http_request_duration_seconds' in content
+    assert 'hms_patients_total' in content
+
+
+def test_metrics_tracks_requests_and_patients(client):
+    """Test that /metrics dynamically tracks patient gauge and HTTP requests."""
+    # Seeded database in conftest has 1 patient
+    resp1 = client.get('/metrics')
+    assert resp1.status_code == 200
+    content1 = resp1.data.decode('utf-8')
+    assert 'hms_patients_total 1.0' in content1
+
+    # Access health endpoint to generate request metric
+    client.get('/health')
+
+    # Verify metrics updated
+    resp2 = client.get('/metrics')
+    content2 = resp2.data.decode('utf-8')
+    assert 'endpoint="health"' in content2
