@@ -1,0 +1,13 @@
+2026-11-13 10:15:00 [INFO] [AuthService] System initialization completed successfully - Status 200
+2026-11-13 10:15:22 [INFO] [AuthService] User login successful for user dr_sharma from IP 192.168.1.45 - Status 200
+2026-11-13 10:16:05 [INFO] [PatientService] Patient registered with ID PAT-9042 name John Doe - Status 201
+2026-11-13 10:17:12 [WARN] [BillingService] Billing record pending insurance clearance for PAT-9042 - Status 402
+2026-11-13 10:18:30 [INFO] [AppointmentService] Appointment scheduled for PAT-9042 with Dr. Sharma - Status 200
+2026-11-13 10:20:11 [ERROR] [DatabaseService] Database connection pool exhausted after 30 retries - Status 500
+2026-11-13 10:21:40 [WARN] [AuthService] Invalid password attempt for user admin from IP 203.0.113.19 - Status 401
+2026-11-13 10:22:15 [ERROR] [AuthService] Account locked due to multiple failed login attempts: user admin - Status 429
+2026-11-13 10:23:02 [INFO] [PharmacyService] Medicine inventory updated for Paracetamol batch B402 - Status 200
+2026-11-13 10:24:55 [INFO] [PatientService] Patient discharge process initiated for PAT-8821 - Status 200
+2026-11-13 10:26:10 [ERROR] [LabService] Diagnostic test report generation failed: File system full - Status 507
+2026-11-13 10:27:00 [INFO] [MonitoringService] Health check heartbeat passed on all clusters - Status 200
+

@@ -81,6 +81,21 @@
         </div>
     </nav>
 
+    <!-- Feature Flag Driven Emergency Triage Banner -->
+    {% if features and features.is_enabled('EMERGENCY_TRIAGE_MODE') %}
+    <div id="emergency-triage-banner" class="alert alert-danger mb-0 text-center py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm rounded-0 border-0" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <span>[ACTIVE FEATURE FLAG] EMERGENCY TRIAGE PROTOCOL ACTIVATED: Real-time patient acuity triage in effect.</span>
+    </div>
+    {% endif %}
+
+    {% if features and features.is_enabled('TELEMEDICINE_PORTAL') %}
+    <div id="telemedicine-banner" class="alert alert-info mb-0 text-center py-1 text-primary-emphasis d-flex align-items-center justify-content-center gap-2 rounded-0 border-0" role="alert">
+        <i class="bi bi-camera-video-fill"></i>
+        <span>Telemedicine Virtual Care Link Active</span>
+    </div>
+    {% endif %}
+
     <!-- Main Content Container -->
     <main class="container py-4">
         <!-- Flash Messages Block -->

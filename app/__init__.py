@@ -122,6 +122,17 @@ def create_app(test_config=None):
     init_metrics(app)
 
     # -------------------------------------------------------------
+    # FEATURE FLAGS INITIALIZATION
+    # -------------------------------------------------------------
+    from app.features import feature_flags
+    feature_flags.init_app(app)
+
+    @app.route('/api/features', methods=['GET'])
+    def api_features():
+        """Returns state of all application feature flags."""
+        return jsonify(feature_flags.get_all_flags()), 200
+
+    # -------------------------------------------------------------
     # CUSTOM ERROR HANDLERS
     # -------------------------------------------------------------
     @app.errorhandler(403)
